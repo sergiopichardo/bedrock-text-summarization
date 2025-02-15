@@ -1,25 +1,46 @@
 import json
 import boto3
-import base64
-import datetime
-import os
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 # Create client connection with Bedrock and S3 Services
-client_bedrock = boto3.client('bedrock-runtime')
-client_s3 = boto3.client('s3')
+bedrock_client = boto3.client('bedrock-runtime')
 
-def handler(event, context): 
+
+
+def handler(event, context):
     try:
         # Extract text summarization prompt from API Gateway request
-        request_body = json.loads(event['prompt'])
-        text_prompt = request_body['prompt']
+        input_prompt = event['prompt']
+        """
+        Example request body:
+        {
+            "prompt": "lorem ipsum dolor sit amet",
+        }
+        """
+        text_prompt = input_prompt['prompt'] 
+        
+        # Call Bedrock API to generate text summarization
+        prompt_response = bedrock_client.invoke_model(
+            modelId='cohere.command-light-text-v14', 
+            contentType='application/json',
+            accept='application/json', 
+            body=json.dumps({
+                "prompt": text_prompt,
+                "temperature": 0.9,
+                "p": 0.75,
+                "k": 0,
+                "max_tokens": 100,
+            }), 
+        )  
 
-        print(f"Text prompt: {text_prompt}")
-        
-        
-           
-    
-            
+
+        # Parse the response from Bedrock
+        response_body = json.loads(prompt_response['body'].read())
+        summary = response_body['generations'][0][0]['text']
+
         # Return success response with download URL
         return {
             'statusCode': 200,
@@ -28,7 +49,7 @@ def handler(event, context):
                 'Access-Control-Allow-Origin': '*'
             },
             'body': json.dumps({
-                'data': 'success'
+                'data': summary
             })
         }
         
