@@ -1,6 +1,35 @@
-# bedrock-text-summarization
-Using Amazon Bedrock for text summarization through Cohere foundation model
+# Amazon Bedrock Text Summarization Use Case 
 
-![alt text](assets/architecture.png)
+## Overview
 
 
+
+![Architecture](./assets/architecture.png)
+
+## How It Works (Step-by-Step)
+
+
+
+
+## Getting Started
+
+Initialize Terraform
+```sh
+terraform init 
+```
+
+Plan the deployment
+```sh
+terraform plan
+```
+
+Apply the deployment
+```sh
+terraform apply -auto-approve
+```
+
+Destroy the infrastructure
+
+```sh
+terraform destroy 
+```
