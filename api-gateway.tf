@@ -12,7 +12,7 @@ resource "aws_api_gateway_rest_api" "text_summarization_api" {
 resource "aws_api_gateway_resource" "text_summarization_resource" {
   rest_api_id = aws_api_gateway_rest_api.text_summarization_api.id
   parent_id   = aws_api_gateway_rest_api.text_summarization_api.root_resource_id
-  path_part   = "text_summarization"
+  path_part   = "summarize"
 }
 
 # Defines the POST method for the text summarization endpoint
@@ -95,3 +95,7 @@ resource "aws_api_gateway_stage" "text_summarization_stage" {
   stage_name    = "dev"
 }
 
+output "api_gateway_url" {
+  description = "API Gateway URL"
+  value       = "${aws_api_gateway_stage.text_summarization_stage.invoke_url}/summarize"
+}

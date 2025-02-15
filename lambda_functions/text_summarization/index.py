@@ -1,68 +1,51 @@
 import json
 import boto3
-import logging
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
-
-# Create client connection with Bedrock and S3 Services
 bedrock_client = boto3.client('bedrock-runtime')
-
-
+#print(boto3.__version__)
 
 def handler(event, context):
+    # Extract the prompt from the incoming event
     try:
-        # Extract text summarization prompt from API Gateway request
-        input_prompt = event['prompt']
-        """
-        Example request body:
-        {
-            "prompt": "lorem ipsum dolor sit amet",
-        }
-        """
-        text_prompt = input_prompt['prompt'] 
-        
-        # Call Bedrock API to generate text summarization
-        prompt_response = bedrock_client.invoke_model(
-            modelId='cohere.command-light-text-v14', 
-            contentType='application/json',
-            accept='application/json', 
-            body=json.dumps({
-                "prompt": text_prompt,
-                "temperature": 0.9,
-                "p": 0.75,
-                "k": 0,
-                "max_tokens": 100,
-            }), 
-        )  
-
-
-        # Parse the response from Bedrock
-        response_body = json.loads(prompt_response['body'].read())
-        summary = response_body['generations'][0][0]['text']
-
-        # Return success response with download URL
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            'body': json.dumps({
-                'data': summary
-            })
-        }
-        
+        # Check if the body is a string (API Gateway sends the body as a string)
+        if 'body' in event:
+            body = json.loads(event['body'])
+            user_prompt = body['prompt']
+        else:
+            # Direct invocation case
+            user_prompt = event['prompt']
     except Exception as e:
-        # Log error and return error response
-        print(f"Error: {str(e)}")  # This will log to CloudWatch
         return {
-            'statusCode': 500,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
+            'statusCode': 400,
             'body': json.dumps({
-                'error': str(e)
+                'error': 'Invalid request format. Please provide a prompt in the request body.',
+                'details': str(e)
             })
         }
+
+    print(f"Processing prompt: {user_prompt}")
+   
+    # Make API call to Bedrock with text generation parameters
+    bedrock_response = bedrock_client.invoke_model(
+       contentType='application/json',
+       accept='application/json',
+       modelId='cohere.command-light-text-v14',
+       body=json.dumps({
+        "prompt": user_prompt,
+        "temperature": 0.9,
+        "p": 0.75,
+        "k": 0,
+        "max_tokens": 100}))
+
+    response_bytes = bedrock_response['body'].read()
+    
+    # Convert JSON response to Python dictionary
+    response_json = json.loads(response_bytes)
+
+    generated_text = response_json['generations'][0]['text']
+
+    # Return the generated text with success status code
+    return {
+        'statusCode': 200,
+        'body': json.dumps(generated_text)
+    }
