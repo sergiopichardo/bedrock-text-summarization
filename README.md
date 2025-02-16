@@ -7,9 +7,9 @@ This AWS-based text summarization pipeline enables users to generate AI-powered 
 ![Architecture](./assets/architecture.png)
 
 
-## **How It Works (Step-by-Step)**  
+## How It Works (Step-by-Step)
 
-### **1. User Submits a Request**  
+### 1. User Submits a Request
 - A user sends a **POST request** via an **API Gateway REST API**, including a **text input** that they want to summarize.  
 - Example request body:  
   ```json
@@ -18,7 +18,7 @@ This AWS-based text summarization pipeline enables users to generate AI-powered 
   }
   ```
 
-### **2. API Gateway Forwards the Request to AWS Lambda**  
+### 2. API Gateway Forwards the Request to AWS Lambda
 - API Gateway acts as an entry point and forwards the request to an **AWS Lambda function**.  
 - The Lambda function is triggered with the event containing the **user's text input**.  
 
@@ -39,11 +39,11 @@ This AWS-based text summarization pipeline enables users to generate AI-powered 
   )
   ```
   
-### **4. Amazon Bedrock Processes the Request and Returns a Summary**  
+### 4. Amazon Bedrock Processes the Request and Returns a Summary
 - Amazon Bedrock sends the request to **Cohere's model**, which generates a summarized response.  
 - The summarized text is sent back to the Lambda function.  
 
-### **5. Lambda Returns the Summarized Text to the User**  
+### 5. Lambda Returns the Summarized Text to the User
 - The Lambda function formats the summarized output and returns it as a response:  
   ```json
   {
@@ -101,11 +101,12 @@ x-amzn-RequestId: 289d1334-4ec7-4995-aa3b-8c5ce227f97b
 
 ```
 
-## **Technologies Used**  
+## Technologies Used
 - **Amazon API Gateway** – Handles incoming API requests and routes them to Lambda.  
 - **AWS Lambda** – Processes user inputs and invokes Amazon Bedrock.  
-- **Amazon Bedrock** – Provides AI-powered summarization via **Cohere's model**.   
-
+- **Amazon Bedrock** – Managed AI service that provides access to foundation models.
+- **Cohere** - Foundation model used for text summarization
+- **Terraform** - Infrastructure as Code tool to provision and manage AWS resources
 
 
 ## Running the code
