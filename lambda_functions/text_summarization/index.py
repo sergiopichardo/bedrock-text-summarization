@@ -31,7 +31,7 @@ def handler(event, context):
        accept='application/json',
        modelId='cohere.command-light-text-v14',
        body=json.dumps({
-        "prompt": user_prompt,
+        "prompt": f"Summarize the following text. Be concise and to the point. {user_prompt}",
         "temperature": 0.9,
         "p": 0.75,
         "k": 0,
@@ -42,10 +42,12 @@ def handler(event, context):
     # Convert JSON response to Python dictionary
     response_json = json.loads(response_bytes)
 
-    generated_text = response_json['generations'][0]['text']
+    generated_text = response_json['generations'][0]['text'].strip()
 
     # Return the generated text with success status code
     return {
         'statusCode': 200,
-        'body': json.dumps(generated_text)
+        'body': json.dumps({
+            'summary': generated_text
+        })
     }
